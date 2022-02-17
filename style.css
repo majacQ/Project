@@ -9,10 +9,6 @@ img {
     max-width: 900px;
 }
 		
-img:active  {
-    max-width: 100%;
-}
-		
 a:focus {
     outline: none;
 }
@@ -44,7 +40,7 @@ h1 {
 
 #upload {
     width:100%;
-    height:85px;
+    height:80px;
 }
 
 #gallery {
@@ -56,7 +52,18 @@ h1 {
     border-width:2px;
     border-color:#141818;
     overflow:auto;
-    height:90%;
+    height:87vh;
+}
+
+#parameters{
+	height:50px;
+    margin-left:260px;
+	margin-top:8px;
+    border-radius:25px;
+    background-color:#415050;
+    border-style:solid;
+    border-width:2px;
+    border-color:#141818; 
 }
 
 #exif {
@@ -71,38 +78,82 @@ h1 {
 }
 
 #fullscreenpic {
-    width:100%;
-    height:500px;
-}
-
-#buttons {
-    width:100%;
-    height:80px;
+    margin-left:260px;
+    height:90vh;
     background-color:#415050;
     border-radius:25px;
-    margin-top:3px;
     border-style:solid;
     border-width:2px;
     border-color:#141818;
+   
 }
 
-#prevnext {
-    width:200px;
-    border-style:dotted;
-    border-color:purple;
-    height:50px;
+#commentForm
+{
+	text-align: left;
+	margin-left: 6px;
 }
 
-#toprow {
-    display: inline-block;
-    width:100%;
-    height:50%;  
+#venstreknapp
+{
+    position:absolute;
+    top:10px;
+    float:left;
+    margin-left:100px;
+	width: 300px;
+    height:90vh;
+}
+#progress
+{
+	position:absolute;
+    top:10px;
+    float:center;
+    margin-left:400px;
+	width: 300px;
+    height:90vh;
+	background:url("img/progress.gif") no-repeat; 
+	background-position:center;
+}
+#hoyreknapp
+{
+	position:absolute;
+	top: 10px;
+	height:90vh;
+    right:110px;
+	width: 300px;
 }
 
-#bottomrow {
-    width:100%;
+#roterVenstre
+{
+	position:absolute;
+	top: 143px;
+	right: 15px;
+}
+
+#roterhoyre
+{
+	position:absolute;
+	top: 79px;
+	right: 15px;
+}
+
+#rotasjonsmeny
+{
+	position:absolute;
+	top: 8px;
+	right: 8px;
+}
+
+#lukkVindu
+{
+	position:absolute;
+	top: 15px;
+	right: 15px;
+}
+
+#buttoncontainer {
     height:50%;
-    float: left;
+    width:100%;
 }
 
 .rating {
@@ -174,24 +225,35 @@ ul.nav li a:hover {
 
 #navbox {
     overflow:auto;
-    height:300px;
+    height:70vh;
 }
 
 #details {
-    border-style:dotted;
-    border-color:green;
+    height:300px;
+    width:100%
 }
 
 #search {
-    height:70px;
+    height:80px;
 }
 
-#fullscreentitle {
-    height:50px;
-    width:100%;
-    border-radius:25px;
+#leftcontainer {
+    float:left;
+    width:250px;
+    height:100%;
     background-color:#415050;
+    border-radius:25px;
     border-style:solid;
     border-width:2px;
-    border-color:#141818; 
+    border-color:#141818;
+}
+
+.replace {
+display:none;
+}
+
+#picturecontainer {
+    height:90vh;
+	text-align: center;
+	margin-top:50px;
 }
