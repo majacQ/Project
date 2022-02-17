@@ -1,4 +1,5 @@
 <?php
+include_once('rotation.php');
 
 include_once("mysql.php");
 
@@ -107,10 +108,10 @@ $files  = null;                     # List of the files from disk
 	{
 		global $images, $big;
 		$i=0;
-		$add = FALSE;
+		// $add = FALSE;
 		$not_add = FALSE;
-		$files_add = '\tLagres paa serveren:\n';
-		$files_not_add = '\n\n\tVar samme navn som en annen fil:\n';
+		// $files_add = '\tSaved on server:\n';
+		$files_not_add = '\tFile\'s not upload:\n';
 		$file_name = $_FILES["bildefil"]["name"];
 		$file_tmp_name = $_FILES["bildefil"]["tmp_name"];
 		
@@ -118,45 +119,35 @@ $files  = null;                     # List of the files from disk
 			foreach ($file_tmp_name as $file)
 			{
 				if (check_img($file_name[$i])){
-					if (file_exists($big.$file_name[$i]))
-					{
-						$files_not_add = $files_not_add.'\n '.$file_name[$i];
-						$n = TRUE;
-					}elseif (!move_uploaded_file($file, $big.$file_name[$i]))
-					{
-						alert_message("Alt gikk galt. :-(");
-						return FALSE;
-					}elseif (check_img($file_name[$i]))
-					{
-						$files_add = $files_add.'\n'.$file_name[$i].
-									'.\tSeze: '.round(($_FILES["bildefil"]["size"][$i] / 1024),2)."KB";
-						$add = TRUE;
-						//lager thumbnail av bilde
-						createThumbs($file_name[$i], $big, $images, 200);
-						if ($GLOBALS['db_is_connected'])
-						{
-							if (!db_insert('file_liste', 'filename', $file_name[$i]))
-							{
-								alert_message('ERROR. can\'t insert into database.');
-								return FALSE;
+					if (file_exists($big.$file_name[$i])){
+					
+						$files_not_add = $files_not_add.'\n '.$file_name[$i].' File name already exist';
+						$not_add = TRUE;
+					
+					}elseif (!move_uploaded_file($file, $big.$file_name[$i])){
+					
+						$files_not_add = $files_not_add.'\n '.$file_name[$i].' Something went wrong. :-(';
+						$not_add = TRUE;
+					
+					}elseif (check_img($file_name[$i])){
+						autoRotateImage(__DIR__ . DIRECTORY_SEPARATOR . $big . $file_name[$i],'');
+						createThumbs($file_name[$i], $big, $images, 200);	//lager thumbnail av bilde
+					
+						if ($GLOBALS['db_is_connected']){
+							if (!db_insert('file_liste', 'filename', $file_name[$i])){
+								// alert_message('ERROR. can\'t insert into database.');
+								// return FALSE;
 							};
 						}
 					}
-				}else
-				{
-					alert_message("Illegal image type. $file_name[$i]");
-					// return FALSE;
+				}else{
+					$files_not_add = $files_not_add.'\n '.$file_name[$i].' Illegal image type.';
+					$not_add = TRUE;
 				}
 				$i++;
 			}
-			if ($add && $not_add){
-				return $files_add.$files_not_add;
-			}elseif($add){
-				return $files_add;
-			}elseif($not_add){
+			if($not_add){
 				return $files_not_add;
-			}else{
-				return FALSE;
 			}
 		}
 	}
@@ -195,11 +186,12 @@ $files  = null;                     # List of the files from disk
                         <tr>';
                 $gallery = $gallery. '
                             <td id="bilde" align="center" 
-									onClick=viuwEXIF("'.$big.$file.'")
+									onClick = viuwEXIF("'.get_EXIF($big.$file).'") 
 									onDblClick = openFulskr("'.$big.$file.'")>
 								<img src="' . $images . $file . '" />
                             </td>';
 							// viuwEXIF("'.get_EXIF($big.$file).'") 
+							// viuwEXIF("'.$big.$file.'")
                 $colCtr++;
             }
 
@@ -209,10 +201,10 @@ $files  = null;                     # List of the files from disk
     }
 
 // Generate HTML cod for tags list
-	function gen_tags()
+	function gen_tags($fileslist1)
 	{
 		$tags_str = "<ul class=\"nav\">\n\r";
-		$tags = get_tags();
+		$tags = get_tags($fileslist1);
 		$tags_str = $tags_str."<li><a href=\"index.php\"><span>All</span></a></li>\r\n";
 		if (!empty($tags)){
 			foreach($tags as $tag)
@@ -241,19 +233,8 @@ $files  = null;                     # List of the files from disk
 // get EXIF data
 	function get_EXIF($file)
 	{
-		$type = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM);
-		// foreach($files as $file){
-			if (in_array(exif_imagetype($file), $type, TRUE)) {
-				$exif = exif_read_data($file, 'IFD0');
-				if ($exif===false){ echo("EXIF feil");}
-				$exif = exif_read_data($file, 0, true);
-				foreach ($exif as $key => $section) {
-					foreach ($section as $name => $val) {
-						echo "$key.$name: $val<br />\n";
-					}
-				}
-			}
-		// }
+		// $img_ob = new img($file);
+		// return $img_ob;
 	}
 	
 // return array of files names from dir.
@@ -294,10 +275,37 @@ $files  = null;                     # List of the files from disk
 	}
 // Get tags list from db
 //	return: tags list [array]
-    function get_tags()
+    function get_tags($filelist1)
     {
-        $tag_list = db_select('tag', 'tags', 'GROUP BY tags', 'tags');
-        return $tag_list;
+			$filelist = $filelist1;
+			$finalTags = array();
+		
+if(!empty($filelist)){		
+			foreach($filelist as $rr){
+				$where = 'tag';
+				$what = 'tags';
+				$sQuery3 = "INNER JOIN file_liste ON tag.fileid = file_liste.fileid WHERE file_liste.filename = '$rr'";
+				$currentTags = db_select($where, $what, $sQuery3, $what);
+				
+				if(!empty($currentTags)){
+					//$currentTags = array_filter($currentTags);
+					foreach($currentTags as $bb){
+						array_push($finalTags, $bb);
+					}
+				}
+			}	
+					
+			//$sluttTags = array_filter($finalTags);
+			$sluttTags = array_unique($finalTags);
+			
+			 //print_r($sluttTags);
+			
+			return $sluttTags;
+			}
+	
+    //   $tag_list = db_select('tag', 'tags', 'GROUP BY tags', 'tags');
+    //  return $tag_list;
+	
     }
 
 // Generate Thumbs
@@ -311,7 +319,6 @@ $files  = null;                     # List of the files from disk
         } else if (preg_match('/[.](png)$/i', $filename)) {
             $im = imagecreatefrompng($path_to_image_directory . $filename);
         } elseif (preg_match('/[.](ti.?f)$/i', $filename)) {
-			
 			$im = imagecreatefromstring(file_get_contents($path_to_image_directory . $filename));
 		} else return FALSE;
 
@@ -336,37 +343,271 @@ $files  = null;                     # List of the files from disk
         imagejpeg($nm, $path_to_thumbs_directory . $filename);
 	}
 
+  <<<<<<< oppdatering-søk
 	// test search function
 	
-		function giveSearch($search1, $searchw1){
+		//function giveSearch($search1, $searchw1){
+		function giveSearch($search1){
+  =======
+	// Search function
 		
-			if(isset($_POST['submission'])){
+		function giveSearch($search1, $rcat){
+  >>>>>>> nextprevfix
+		
+//			if(isset($_POST['submission'])){
+
 				$search = $search1;
-				$searchw = $searchw1;
+  <<<<<<< oppdatering-søk
+				//$searchw = $searchw1;
+  =======
+				
+				if (strpos($search,"'") !== false) {
+					alert_message("Invalid character!");
+					return;
+				}
+  >>>>>>> nextprevfix
 				
 				$where = 'file_liste';
 				$what = 'filename';
+				$files = null;
 				
-				$sQuery = "WHERE $searchw = $search";
+  <<<<<<< oppdatering-søk
+				//$sQuery0 = "WHERE $searchw = $search";
 				
-				if($searchw=="commentary"){ 
-					$sQuery = "WHERE $searchw LIKE '%$search%'";
-					}
+				$sQuery1 = "WHERE commentary LIKE '%$search%'";
 				
-				if($searchw=="tag"){ 
-					//$sQuery = 'INNER JOIN tag ON file_liste.fileid = tag.fileid WHERE tag.tags LIKE \''.$search.'\'';
-					$sQuery = "INNER JOIN tag ON file_liste.fileid = tag.fileid WHERE tag.tags LIKE '$search%'";
+  =======
+				$sQuery1 = "WHERE commentary LIKE '%$search%'";
+				
+  >>>>>>> nextprevfix
+				$sQuery2 = "INNER JOIN tag ON file_liste.fileid = tag.fileid WHERE tag.tags LIKE '$search%'";
+				
+				$files1 = db_select($where, $what, $sQuery1, $what);
+				$files2 = db_select($where, $what, $sQuery2, $what);
+				
+				if(is_array($files1) && is_array($files2)){
+					$files = array_merge($files1, $files2);
 				}
 				
-				//if($searchw=="clear"){
-				//	$a = giveSearch($search, 'commentary');
-				//	$b = giveSearch($search, 'tag');
-				//	$c = $merge_array($a, $b);
-				//	return array_unique($c);
-				//}
+				if(!empty($files1) && empty($files2)){
+					$files = $files1;
+				}
 				
+				if(empty($files1) && !empty($files2)){
+					$files = $files2;				
+				}
 				
-				$files = db_select($where, $what, $sQuery, $what);
+				if(!empty($files)){
+					$files = array_unique($files);
+					}
+				
+				error($files);
+				
+				if($rcat == 'unrated'){
+					$files = array_intersect($files, get_unrated());
+					error($files);
+					return $files;
+				}
+				
+				if($rcat == 'rated'){
+					$files = array_intersect($files, get_rated());
+					error($files);
+					return $files;
+				}
+
+				return $files;
+				
+	//		}
+			
+		}
+		
+		function giveRating($value1){
+		
+			//if(isset($_POST['submission'])){
+				
+				$value = $value1;
+				$where = 'file_liste';
+				$what = 'filename';
+				$files = null;
+								
+				$sQuery0 = "WHERE rating >= $value";
+				
+				$files = db_select($where, $what, $sQuery0, $what);
+				
+				if(!empty($files)){
+					$files = array_unique($files);
+					}
+				
+				error($files);
+								
+				return $files;
+				
+			//}
+		}
+		
+		function giveBoth($search1, $value1, $rcat){
+			
+			$search = $search1;
+			$value = $value1;
+		
+			$filestmp1 = giveSearch($search, $rcat);
+			$filestmp2 = giveRating($value);
+			
+			if(empty($filestmp1) && !empty($filestmp2)){
+				return $filestmp2;
+			}
+			
+			if(!empty($filestmp1) && empty($filestmp2)){
+				return $filestmp2;
+			}
+			
+			$filestmp3 = array_intersect($filestmp1, $filestmp2);
+			
+			$files = array_unique($filestmp3);
+			
+			error($files);
+			
+			return $files;
+		}
+		
+		function get_unrated()
+		{
+			$files = db_select('file_liste', 'filename', 'WHERE rating IS NULL', 'filename');
+			return $files;
+		}
+		
+		function get_rated()
+		{
+			$files = db_select('file_liste', 'filename', 'WHERE rating IS NOT NULL', 'filename');
+			return $files;
+		}
+
+		function error($files){
+		
+			if(!$files){
+				global $failed;
+				alert_message('Search yields no results!');
+				$failed = TRUE;
+				return FALSE;
+			}
+		}
+		
+		function get_search_list($ratinginput, $search, $ratingcategory){
+		
+		$files = null;
+		
+		if (!empty($ratinginput) && !empty($search)){
+			$files = giveBoth($search,$ratinginput,$ratingcategory);
+		}
+  <<<<<<< oppdatering-søk
+  =======
+	
+		if (!empty($search) && empty($ratinginput)){
+			$files = giveSearch($search,$ratingcategory);
+		}
+		
+		if (!empty($ratinginput) && empty($search)){			
+			$files = giveRating($ratinginput);
+		}	
+				
+		if (empty($ratinginput) && empty($search) && !empty($ratingcategory)){			
+			if($ratingcategory=='all'){$files = db_select('file_liste', 'filename', '', 'filename');}
+			if($ratingcategory=='unrated'){$files = get_unrated();}
+			if($ratingcategory=='rated'){$files = get_rated();}
+		}	
+		
+		return $files;
+		
+		}
+		
+		function get_search_parameter_display($failed, $ratingcategory, $search, $ratinginput, $submission){
+		
+			
+		if(!$failed){		
+			if((!empty($submission)) && !(empty($ratingcategory) && empty($search) && empty($ratinginput))){
+				if(!($ratingcategory=='all' && (empty($search) && empty($ratinginput)))){	
+	 
+				$cpam =	'<div id ="parameters"><h3> CURRENT SEARCH: <i>';
+	
+				if(!empty($ratingcategory)){
+					$cpam .= '(CATEGORY: ';
+					if($ratingcategory=='unrated' && !empty($ratinginput)){
+						$cpam .= 'all)';
+					}
+					else{
+						$cpam .= $ratingcategory.')';
+					}
+				}	
+				
+				if(!empty($ratinginput)){
+					$cpam .=' & ';
+					$cpam .= '(RATING: >= ';
+					$cpam .= $ratinginput.')';
+				}
+				
+				if(!empty($search)){
+					$cpam .= ' & ';
+					$cpam .= '(COMMENT/TAG: "';
+					$cpam .= $search.'")';
+				}
+				
+				$cpam .= '</i></h3></div>';
+				
+				return $cpam;
+				
+				}
+			}
+		}
+
+		}
+		
+		// testfunksjon for oppdatering av tagsliste etter søk / ikke i bruk
+//		function findTags($filelist1){
+		
+//		$filelist = $filelist1;
+		
+//		$finalTags = array();
+		
+//			foreach($filelist as $rr){
+//				array_to_string($rr);
+//				$where = 'tag';
+//				$what = 'tags';
+//				$sQuery3 = "INNER JOIN file_list ON tag.fileid = file_liste.fileid WHERE file_liste.filename LIKE '$rr%'";
+//				$currentTags = db_select($where, $what, $sQuery3, $what);
+//				$finalTags[] = $currentTags;
+//			}	
+			
+//			$finalTags = array_unique($finalTags);
+//			$finalTagsStr = array_to_string($finalTags);
+//			return $finalTagsStr;
+		
+//		}
+		
+		// Testfunksjoner / ikke i bruk
+		
+//		function get_search_error(){
+//			return $searcherror;
+//		}
+		
+//		function set_search_error($value){
+//			return $searcherror = $value;;
+//		}
+		
+
+  >>>>>>> nextprevfix
+		
+		function giveRating($value1){
+			if(isset($_POST['submission'])){
+				
+				$value = $value1;
+				$where = 'file_liste';
+				$what = 'filename';
+				$files = null;
+				
+				$sQuery0 = "WHERE rating = $value";
+				
+				$files = db_select($where, $what, $sQuery0, $what);
+				
 				if(!empty($files)){
 					$files = array_unique($files);
 					}
@@ -379,8 +620,5 @@ $files  = null;                     # List of the files from disk
 				return $files;
 				
 			}
-			
 		}
-	
-		
 ?>
