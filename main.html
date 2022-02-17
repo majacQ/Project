@@ -1,44 +1,291 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Gruppe F's fantastiske løsning til å laste opp filer</title>
+	<title>Web Photo Gallery</title>
+    <meta http-equiv="content-type" content="=text/html; charset=utf-8 without BOM"/>
+	<link rel="shortcut icon" href="img/favicon.ico">
 	<link rel="stylesheet" href="style.css">
+	
 </head>
 <!-------------------------------------------------------------------------------------->
 <body>
+	<script type="text/javascript">
+		function viuwEXIF(file) {
+			var div = document.getElementById('exif');
+			div.innerHTML = file;
+		}
+		
+		function openFulskr(file) {
+            var tag = getURLParameter('tag');
+			var ratinginput = getURLParameter('ratinginput');
+			var search = getURLParameter('search');
+			var order = getURLParameter('SortingCategory');;
+			
+			var extention = '';
+			if(!empty(tag)){
+				extention += "tag="+ tag;
+			}
+			if(!empty(ratinginput)){
+				extention += "&ratinginput=" + ratinginput;
+			}
+			if(!empty(search)){
+				extention += "&search="+ search;
+			}
+			if(!empty(order)){
+				extention += "&SortingCategory="+ order;
+			}
+			
+			var ratingcategory = getURLParameter('ratingcategory');
+			window.open("fullscreen.php?"+extention +"&bilde="+file + "&leggTilTaggnavn=null&slettTaggnavn=null");
+		}
+		
+        function getURLParameter(name) {
+		  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		}
+	</script>
 	
+	<script>
+	
+		function empty( mixed_var ) {   // Determine whether a variable is empty
+			return ( mixed_var === "" ||  mixed_var === null  || mixed_var === false  );
+		//	return ( mixed_var === "" || mixed_var === 0   || mixed_var === "0" || mixed_var === null  || mixed_var === false  );
+		}
+
+	
+		window.onload=function() {
+			var rate = getURLParameter('ratinginput');
+			setRate(rate);
+			document.getElementById('tag').value = getURLParameter('tag');
+			
+			var getStr = window.location.search.replace( "?", "" );
+			var getArr = getStr.split("&");
+			
+			for (var i = 0; i < getArr.length; ++i) {
+				if(!empty(getArr[i])){
+					var getElements = getArr[i].split("=");
+					if(!empty(getElements[1])){
+						if(getElements[0]!='sortSubmit' & getElements[0]!='SortingCategory'){
+							var orderForm = document.getElementById('orderForm')
+							var getEl = document.createElement("INPUT");
+							getEl.setAttribute("type", "hidden");
+							getEl.name = getElements[0];
+							getEl.value = getElements[1];
+							orderForm.appendChild(getEl);
+						}
+					}
+				}
+				
+			}
+			
+			
+			if (!empty(getURLParameter('SortingCategory'))) {
+				var sortingArr = getURLParameter('SortingCategory').split("--");
+				document.getElementById("SortingCategory").selectedIndex=sortingArr[0];
+				var searchForm = document.getElementById('ratingForm')
+				var order = document.createElement("INPUT");
+				order.setAttribute("type", "hidden");
+				order.name = 'SortingCategory';
+				order.value = getURLParameter('SortingCategory');
+				searchForm.appendChild(order);
+			}
+			
+		}
+		
+		function setRate(rate){
+			var rateI = parseInt(rate);
+			var star = document.getElementById('ratingstar');
+			if ( rateI != 'undefined' ){
+				switch(rateI){
+					case 0:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=true;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 1:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=true;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 2:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=true;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 3:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=true;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 4:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=true;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 5:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=true;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+					case 6:
+						document.getElementById('rating-input-1-a').checked=false;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=true;
+						break;
+					default:
+						document.getElementById('rating-input-1-a').checked=true;
+						document.getElementById('rating-input-1-0').checked=false;
+						document.getElementById('rating-input-1-1').checked=false;
+						document.getElementById('rating-input-1-2').checked=false;
+						document.getElementById('rating-input-1-3').checked=false;
+						document.getElementById('rating-input-1-4').checked=false;
+						document.getElementById('rating-input-1-5').checked=false;
+						document.getElementById('rating-input-1-6').checked=false;
+						break;
+				}
+			}else{
+				document.getElementById('rating-input-1-a').checked=true;
+				document.getElementById('rating-input-1-0').checked=false;
+				document.getElementById('rating-input-1-1').checked=false;
+				document.getElementById('rating-input-1-2').checked=false;
+				document.getElementById('rating-input-1-3').checked=false;
+				document.getElementById('rating-input-1-4').checked=false;
+				document.getElementById('rating-input-1-5').checked=false;
+				document.getElementById('rating-input-1-6').checked=false;
+			}
+			
+		}
+	</script>
     
     <div id="containermain">
-        
-        <div id="title">
-				<h1>Web Photo Gallery</h1>
-        </div>
-        
         <div id="containerleft">
-        
-        <div id="upload">
+			
+			<div id="upload">
+			   <p>
 				<form action="index.php" method="post" enctype="multipart/form-data">
 					<input name="bildefil[]" id="bildefil" type="file" multiple=""><br>
-					<input type="submit" name="submit" value="Submit">
+					<input type="submit" name="submit" value="Import">
 				</form>
-        </div>
-        
-        <div id="navbox">
-				<p>#tags#</p>
-        </div>
-            
-        <div id="exif">
-				<p>This is the EXIF script</p>
-        </div>
-            
-        </div>
-            
-        <div id="gallery">
-				#gallery#
-        </div>
+			</div>
+			
+			
+			<div id="search">
+				<form id="ratingForm" method="get">	
+					<input type="hidden" name="tag" id="tag">
+					<table style="width:240px" border='0'>
+						<tr>
+							
+							<td>
+								<input type="radio" value="-1" 
+									id="rating-input-1-a" name="ratinginput" checked ></td>
+							<td>
+								<input type="radio" value="0" 
+									id="rating-input-1-0" name="ratinginput" >
+							</td>
+							<td>
+								<span class="rating" id = "ratingstar"> 
+							
+									<input type="radio" value="5" class="rating-input"
+										id="rating-input-1-5" name="ratinginput" >
+									<label for="rating-input-1-5" class="rating-star"></label>
+									
+									<input type="radio" value="4" class="rating-input"
+										id="rating-input-1-4" name="ratinginput" >
+									<label for="rating-input-1-4" class="rating-star"></label>
+									
+									<input type="radio" value="3" class="rating-input"
+										id="rating-input-1-3" name="ratinginput" >
+									<label for="rating-input-1-3" class="rating-star"></label>
+									
+									<input type="radio" value="2" class="rating-input"
+										id="rating-input-1-2" name="ratinginput" >
+									<label for="rating-input-1-2" class="rating-star"></label>
+									
+									<input type="radio" value="1" class="rating-input"
+										id="rating-input-1-1" name="ratinginput" >
+									<label for="rating-input-1-1" class="rating-star"></label>
+								
+								</span>
+							</td>
+							<td>
+								<input type="radio" value="6"
+									id="rating-input-1-6" name="ratinginput" >
+							</td>
+						</tr>
+						<tr>
+							<td>All</td>
+							<td>Unrated</td>
+							<td></td>
+							<td>Rated</td>
+						</tr>
+					</table>
+					<input type="text" name="search" size="20"/>
+					<input type="submit" name="submission" value="Search" /><br>
+				</form>
 		
-        <div id="terriblemusic">
-<!--	               <embed height="50" width="100" src="Kalimba.mp3" style= visibilty: hidden>-->
+			</div>
+		
+			<div id="navbox">
+				<p>#tags#</p>
+			</div>
+			</p>
+        
+        </div>
+                    
+		<div id="title">
+			<form action = "" id='orderForm' method="get">
+				<h1>Web Photo Gallery 
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<select name="SortingCategory" id="SortingCategory">
+						<!--option selected value="0"> Sorter etter</option-->
+						<option value="0--file_liste.filename"> Sort by name </option>
+						<option value="1--file_liste.rating"> Sort by rating</option>
+						<option value="2--file_liste.date_of_addition"> Sort by date of addition</option>
+						<option value="3--file_liste.date_of_shooting"> Sort by date of shooting</option>
+					</select>
+					<input type="submit" name="sortSubmit" value="Sort">
+				<h1>
+			</form>
+        </div>
+       
+		#parameters#
+		
+        <div id="gallery">
+			#gallery#
         </div>
         
     </div>
