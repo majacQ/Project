@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="img/favicon.ico">
         
-        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css">
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css">
         <link href="css/jquery.tagit.css" rel="stylesheet" type="text/css">
         
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"   type="text/javascript" charset="utf-8"></script>
@@ -15,17 +15,22 @@
 		
 		<script type="text/javascript" src="exif-js-master/binaryajax.js"></script>
 		<script type="text/javascript" src="exif-js-master/exif.js"></script>
+		
+		<?php
+			ob_start();
+		?>
 
         <!javascript kommentarboks>
         <script type="text/javascript">
-            function exchange(el){
+            function exchange(el)
+			{
                 var ie=document.all&&!document.getElementById? document.all : 0;
                 var toObjId=/b$/.test(el.id)? el.id.replace(/b$/,'') : el.id+'b';
                 var toObj=ie? ie[toObjId] : document.getElementById(toObjId);
                 if(/b$/.test(el.id))
                     toObj.innerHTML=el.value;
                 else{
-                    toObj.style.width=el.offsetWidth+7+'px';
+                    toObj.style.width=200+'px';
                     toObj.value=el.innerHTML;
                 }
                 el.style.display='none';
@@ -33,28 +38,28 @@
             }
 			
              // IN PROGRESS
-            function leftArrowPressed() {
-                var list = imgList();
-                var imgLoc = getURLParameter('bilde');
-                var imgName = imgLoc.split("/");
-                var place = list.indexOf(imgName[1]);
-                if (place == 0)place = list.length;
-                var previous = list[place - 1];
+            // function leftArrowPressed() {
+                // var list = imgList();
+                // var imgLoc = getURLParameter('bilde');
+                // var imgName = imgLoc.split("/");
+                // var place = list.indexOf(imgName[1]);
+                // if (place == 0)place = list.length;
+                // var previous = list[place - 1];
                 
-               window.location.assign("fullscreen.php?tag=null&bilde=Bilder%2F" + previous);
+               // window.location.assign("fullscreen.php?tag=null&bilde=Bilder%2F" + previous);
                     
-            }
+            // }
             
-            function rightArrowPressed() {
-                var list = imgList();
-                var imgLoc = getURLParameter('bilde');
-                var imgName = imgLoc.split("/");
-                var place = list.indexOf(imgName[1]);
-                var next = list[place + 1];
-                if (place == list.length)place = 0;
+            // function rightArrowPressed() {
+                // var list = imgList();
+                // var imgLoc = getURLParameter('bilde');
+                // var imgName = imgLoc.split("/");
+                // var place = list.indexOf(imgName[1]);
+                // var next = list[place + 1];
+                // if (place == list.length)place = 0;
 
-               window.location.assign("fullscreen.php?tag=null&bilde=Bilder%2F" + next);
-            }
+               // window.location.assign("fullscreen.php?tag=null&bilde=Bilder%2F" + next);
+            // }
             
             function imgList() {
                 <?php
@@ -70,7 +75,30 @@
                 return imgList;
                     
             }
-            
+			
+			// var commentField = document.getElementById('itm1b');
+            function onKeyDown(element){
+				switch (event.keyCode) {
+                    case 13: //Enter
+						var xmlhttp = getXmlHttp();
+						var fileName = 'Bilder/'+fileNames[corImg];
+						xmlhttp.open('POST', 'rotation.php', false);
+						xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+						xmlhttp.send("comment=" + encodeURIComponent(element.value) + "&name=" + encodeURIComponent(fileName));
+						if(xmlhttp.status == 200) {
+							if (xmlhttp.responseText!==""){
+								alert('Comment Error!!! '+ xmlhttp.responseText);
+							}else{
+								showComment()
+							};
+						}
+                        break;
+                    case 27: //Escape
+                       alert('AAAAAAAAAaaaaaaaaaaaaaaaa');
+                        break;
+                }
+			}
+			
             document.onkeydown = function(evt) {
                 evt = evt || window.event;
                 switch (evt.keyCode) {
@@ -90,6 +118,38 @@
 		}
 // PROGRESS
         </script>
+		
+		<script type="text/javascript">
+									
+			function musOverPilVenstre(musover)
+			{
+			musover.src = "img/leftbutton.png";
+			}
+			function musOverPilHoyre(musover)
+			{
+			musover.src = "img/rightbutton.png";
+			}
+			function musIkkeOver(musover)
+			{
+			musover.src = "img/Tom.png";
+			}
+			function musOverRotasjonVenstre(musover)
+			{
+			musover.src = "img/RoterVenstre.png";
+			}
+			function musOverRotasjonHoyre(musover)
+			{
+			musover.src = "img/RoterHoyre.png";
+			}
+			function musOverAvslutt(musover)
+			{
+			musover.src = "img/LukkVindu.png";
+			}
+			function musIkkeOverRotasjonsknapp(musover)
+			{
+			musover.src = "img/TomKnapp.png";
+			}
+		</script>	
         
     </head>
         
@@ -105,7 +165,31 @@
 	
 		global $imgListStr;
 		if (empty($_GET['tag']) || $_GET['tag']=='null'){
+		//	$imgList = db_select('file_liste', 'filename', '', 'filename');//test
+			
+		// ALERT TESTZONE FOR IMAGE-SCROLL BASED ON SEARCH RESULTS
+			
+		$ratinginput = 'null';
+		$search = 'null';
+		$ratingcategory = 'null';
+
+		if(!empty($_GET['ratinginput'])){$ratinginput = $_GET['ratinginput'];}
+		if(!empty($_GET['search'])){$search = $_GET['search'];}
+		if(!empty($_GET['ratingcategory'])){$ratingcategory = $_GET['ratingcategory'];}
+	
+		if($ratinginput == 'null'){$ratinginput = "";}
+		if($search == 'null'){$search = "";}
+		if($ratingcategory == 'null'){$ratingcategory = "";}
+	
+		if(!$ratingcategory==""){
+			$imgList = get_search_list($ratinginput, $search, $ratingcategory);
+		}
+		else{
 			$imgList = db_select('file_liste', 'filename', '', 'filename');
+		}
+		
+		// TESTZONE END
+		
 		}else{
 			$group = "inner join tag on file_liste.fileid = tag.fileid where tag.tags = '".$_GET['tag']."'";
 			$imgList = db_select('file_liste', 'filename', $group, 'filename');
@@ -116,16 +200,35 @@
 	global $result3;
 	$currentImage = substr($_GET['bilde'],7);
 	
-	$query1 = "SELECT fileid FROM file_liste WHERE filename='$currentImage'";
+	//$result3 = getImgDetails($currentImage);
+	
+			$query1 = "SELECT fileid FROM file_liste WHERE filename='$currentImage'";
 					$result1 = $db->query($query1);
          	
 					if (!empty($result1)){
 						foreach($result1 as $rr)
 						{
-							$result3 = (array_to_string($rr));
+						$result3 = array_to_string($rr);
+						$result4 = $rr;
 						}	
 					}
+	
     ?>
+	<?php	
+		$leggTilTaggnavn = $_GET["leggTilTaggnavn"];
+		if ("null" != $leggTilTaggnavn)
+		{
+			$query = "INSERT INTO tag(fileid, tags) VALUES ($result3 , '$leggTilTaggnavn')";
+			$result = $db->query($query);
+		}
+		
+		$slettTaggnavn = $_GET["slettTaggnavn"];
+		if ("null" != $slettTaggnavn)
+		{
+			$query = "DELETE FROM tag WHERE tags = '$slettTaggnavn' AND fileid=$result3;";
+			$result = $db->query($query);
+		}
+	?>
         
        <div id="containermain">
            
@@ -208,23 +311,23 @@
 				echo '<form id="ratingForm" method="post">	
 					<span class="rating" id = "ratingstar"> 
 						<input type="radio" value="5" class="rating-input"
-							id="rating-input-1-5" name="ratinginput" '.$rating5.' onChange="rateFunction(5)">
+							id="rating-input-1-5" name="ratinginput" '.$rating5.' onChange="setRate(5)">
 						<label for="rating-input-1-5" class="rating-star"></label>
 						
 						<input type="radio" value="4" class="rating-input"
-							id="rating-input-1-4" name="ratinginput" '.$rating4.' onChange="rateFunction(4)">
+							id="rating-input-1-4" name="ratinginput" '.$rating4.' onChange="setRate(4)">
 						<label for="rating-input-1-4" class="rating-star"></label>
 						
 						<input type="radio" value="3" class="rating-input"
-							id="rating-input-1-3" name="ratinginput" '.$rating3.' onChange="rateFunction(3)">
+							id="rating-input-1-3" name="ratinginput" '.$rating3.' onChange="setRate(3)">
 						<label for="rating-input-1-3" class="rating-star"></label>
 						
 						<input type="radio" value="2" class="rating-input"
-							id="rating-input-1-2" name="ratinginput" '.$rating2.' onChange="rateFunction(2)">
+							id="rating-input-1-2" name="ratinginput" '.$rating2.' onChange="setRate(2)">
 						<label for="rating-input-1-2" class="rating-star"></label>
 						
 						<input type="radio" value="1" class="rating-input"
-							id="rating-input-1-1" name="ratinginput" '.$rating1.' onChange="rateFunction(1)">
+							id="rating-input-1-1" name="ratinginput" '.$rating1.' onChange="setRate(1)">
 						<label for="rating-input-1-1" class="rating-star"></label>
 					</span>';
 				?>
@@ -261,22 +364,7 @@
 					   } 
 					   return $_GET; 
 					} 
-					
-					function rateFunction(rate){
-						var xmlhttp = getXmlHttp();
-						var fileName = 'Bilder/'+fileNames[corImg];
-						xmlhttp.open('POST', 'imgData.php', false);
-						xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-						xmlhttp.send("rate=" + encodeURIComponent(rate) + "&name=" + encodeURIComponent(fileName));
-						if(xmlhttp.status == 200) {
-							if (xmlhttp.responseText==""){
-								showRate(rate);
-							}else{
-								alert('Rating Error!!! \n'+ xmlhttp.responseText);
-							};
-						}
-					}
-					
+
 					function rotate(angle){
 						var xmlhttp = getXmlHttp();
 						var fileName = 'Bilder/'+fileNames[corImg];
@@ -312,23 +400,45 @@
 					}
 			
 					function nextImg(){
+						var ratinginput = getURLParameter('ratinginput');
+						var search = getURLParameter('search');
+						var ratingcategory = getURLParameter('ratingcategory');
+						var tag = getURLParameter('tag');
+						var total = "&ratinginput=" + ratinginput + "&search=" + search + "&ratingcategory=" + ratingcategory;
+						
+						if(ratingcategory=='null'){
+							var total="";
+						}
+
+					
 						var length = fileNames.length;
 						var next = (corImg+1)%length;
-						
+						var newpic = fileNames[next];
+						window.location.assign("http://localhost/Project/fullscreen.php?tag=" + tag + "&bilde=Bilder/" + newpic + "&leggTilTaggnavn=null" + "&slettTaggnavn=null" + total);
 						var hiddenNextImg = new Image();
 						hiddenNextImg.src = 'Bilder/'+fileNames[next]+'?rand='+Math.random();
 						var fullimg = document.getElementById('fullimg');
 						fullimg.src = hiddenNextImg.src;
 						
 						corImg = next;
-						
 						showData();
-						
 					}
 		
 					function prevImg(){
+						var ratinginput = getURLParameter('ratinginput');
+						var search = getURLParameter('search');
+						var ratingcategory = getURLParameter('ratingcategory');
+						var tag = getURLParameter('tag');
+						var total = "&ratinginput=" + ratinginput + "&search=" + search + "&ratingcategory=" + ratingcategory;
+						
+						if(ratingcategory=='null'){
+							var total="";
+						}
+					
 						var length = fileNames.length;
 						var prev = (corImg-1)%length;
+						var newpic = fileNames[prev];
+						window.location.assign("http://localhost/Project/fullscreen.php?tag=" + tag + "&bilde=Bilder/" + newpic + "&leggTilTaggnavn=null" + "&slettTaggnavn=null" + total);
 						if (prev < 0){
 							prev = length-1;
 						}
@@ -349,6 +459,7 @@
 						showComment(imgData[1]);
 						showTags(imgData[2]);
 						document.getElementById('nameStr').innerHTML = fileNames[corImg];
+						//location.reload(true);
 					}
 				
 					//---- checks the string by template(rate: [1-5]#comment: STRING#tags: STRING,STRING,STRING;)
@@ -412,7 +523,41 @@
 							return [' '];
 						}
 					}
+					
+					function setRate(rate){
+						var xmlhttp = getXmlHttp();
+						var fileName = 'Bilder/'+fileNames[corImg];
+						xmlhttp.open('POST', 'imgData.php', false);
+						xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+						xmlhttp.send("rate=" + encodeURIComponent(rate) + "&name=" + encodeURIComponent(fileName));
+						if(xmlhttp.status == 200) {
+	//hva er feil her?	//	if (xmlhttp.responseText==""){
+								showRate(rate);
+	//hva er feil her?	//	}else{
+	//hva er feil her?	//		alert('Rating Error!!! \n'+ xmlhttp.responseText);
+	//hva er feil her?	//	};
+						}
+					}
+					
+					function setComment(comment){
+						var xmlhttp = getXmlHttp();
+						var fileName = 'Bilder/'+fileNames[corImg];
+						xmlhttp.open('POST', 'imgData.php', false);
+						xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+						xmlhttp.send("comment=" + encodeURIComponent(comment) + "&name=" + encodeURIComponent(fileName));
+						if(xmlhttp.status == 200) {
+							if (xmlhttp.responseText==""){
+								showComment(comment);
+							}else{
+								alert('Rating Error!!! \n'+ xmlhttp.responseText);
+							};
+						}
+					}
+					
+					function setTags(str){
 						
+					}
+					
 					function showRate(rate){
 						var rateI = parseInt(rate, 10);
 						var span = document.getElementById('ratingStr');
@@ -476,27 +621,27 @@
 						}
 						star.innerHTML = ''+
 								'<input type="radio" value="5" class="rating-input"'+
-									'id="rating-input-1-5" name="ratinginput" '+rating5+' onChange="rateFunction(5)">'+
+									'id="rating-input-1-5" name="ratinginput" '+rating5+' onChange="setRate(5)">'+
 								'<label for="rating-input-1-5" class="rating-star"></label>'+
 								'<input type="radio" value="4" class="rating-input"'+
-									'id="rating-input-1-4" name="ratinginput" '+rating4+' onChange="rateFunction(4)">'+
+									'id="rating-input-1-4" name="ratinginput" '+rating4+' onChange="setRate(4)">'+
 								'<label for="rating-input-1-4" class="rating-star"></label>'+
 								'<input type="radio" value="3" class="rating-input"'+
-									'id="rating-input-1-3" name="ratinginput" '+rating3+' onChange="rateFunction(3)">'+
+									'id="rating-input-1-3" name="ratinginput" '+rating3+' onChange="setRate(3)">'+
 								'<label for="rating-input-1-3" class="rating-star"></label>'+
 								'<input type="radio" value="2" class="rating-input"'+
-									'id="rating-input-1-2" name="ratinginput" '+rating2+' onChange="rateFunction(2)">'+
+									'id="rating-input-1-2" name="ratinginput" '+rating2+' onChange="setRate(2)">'+
 								'<label for="rating-input-1-2" class="rating-star"></label>'+
 								'<input type="radio" value="1" class="rating-input"'+
-									'id="rating-input-1-1" name="ratinginput" '+rating1+' onChange="rateFunction(1)">'+
+									'id="rating-input-1-1" name="ratinginput" '+rating1+' onChange="setRate(1)">'+
 								'<label for="rating-input-1-1" class="rating-star"></label>';
 					}
-			// </script>	<script>			
+			
 					function showComment(str){
 						var span = document.getElementById('CommentStr');
 						span.innerHTML = str;
 					}
-		// </script>	<script>				
+				
 					function showTags(arr){
 						var span = document.getElementById('tagsStr');
 						span.innerHTML = arr.toString();
@@ -504,30 +649,36 @@
 				</script>
 				
                    <!kommentarfelt>
+				   
         
-                <form action="" method="post">
-                    <span id="itm1" onclick="exchange(this);">
-						<?php 	
-							$query2 = "SELECT commentary FROM file_liste WHERE fileid=$result3";
-							$result2 = $db->query($query2);
-							foreach($result2 as $rr)
-								
-							if (!empty($result2)){
-								foreach($result2 as $rr) {
-									print_r(array_to_string($rr));
-									if(null === (array_to_string($rr))) echo("click to comment");
-								}
-							}
-						?>
-					</span>
-                    <input ondblclick="exchange(this);" id="itm1b" class="replace" type="text" value=""  name="comment">
-                    </form><?php
-					if(!empty($_POST['comment'])){
-						$svaret = $_POST['comment'];
-						$query = "UPDATE file_liste SET commentary='$svaret' WHERE fileid=$result3";
-						$result = $db->query($query);
-						echo'<meta http-equiv="refresh" content="0" />';
-					}?>
+<form action="" method="post" id="commentForm">
+<input type = "text" name = "comment" value="<?php
+	$query2 = "SELECT commentary FROM file_liste WHERE fileid=$result3";
+	$result2 = $db->query($query2);
+	foreach($result2 as $rr)
+		
+	if (!empty($result2))
+	{
+		foreach($result2 as $rr)
+		{
+			print_r(array_to_string($rr));
+			if(null === (array_to_string($rr))) echo("click to comment");
+		}
+	}
+	if(!empty($_POST['comment']))
+	{
+		$svaret = $_POST['comment'];
+		$query = "UPDATE file_liste SET commentary='$svaret' WHERE fileid=$result3";
+		$result = $db->query($query);
+		//echo '<meta http-equiv="refresh" content="0">';
+		header("Refresh:0");
+	}	
+?>" onFocus="javascript:this.select()" size="27"/>
+<!--input ondblclick="exchange(this);" onkeydown="onKeyDown(this)" id="itm1b" class="replace" type="text" value="click to comment"  name="comment"-->
+<!--span id="itm1" onclick="exchange(this);"-->
+<!--/span-->
+
+</form>
 					
 					
                
@@ -537,74 +688,58 @@
                 <!tagfelt>
                
                <script type="text/javascript">
-                    $(document).ready(function() {
-                        $("#myTags").tagit();
-                    });
+                    $(document).ready(function()
+					{
+                        $("#myTags").tagit(
+						{
+							
+						});
+																		
+						var sletteTagHendelse = $('#myTags');
+						
+						var ratinginput = getURLParameter('ratinginput');
+						var search = getURLParameter('search');
+						var ratingcategory = getURLParameter('ratingcategory');
+						var tag = getURLParameter('tag');
+						var total = "&ratinginput=" + ratinginput + "&search=" + search + "&ratingcategory=" + ratingcategory;
+						
+						if(ratingcategory=='null'){
+							var total="";
+						}
+	
+						sletteTagHendelse.tagit(
+						{
+							afterTagAdded: function(evt, ui)
+							{
+								window.location.assign("http://localhost/Project/fullscreen.php?tag=" + tag + "&bilde=" + getURLParameter('bilde') + "&leggTilTaggnavn=" + $("#myTags").tagit('tagLabel', ui.tag) + "&slettTaggnavn=null" + total);
+							},
+							afterTagRemoved: function(evt, ui)
+							{
+								window.location.assign("http://localhost/Project/fullscreen.php?tag=" + tag + "&bilde=" + getURLParameter('bilde') + "&slettTaggnavn=" + $("#myTags").tagit('tagLabel', ui.tag) + "&leggTilTaggnavn=null" + total);
+							}
+						}
+						);
+                    }
+					);
                 </script>
                
                
 
-               <ul id="myTags">
+				<ul id="myTags">
             <!-- Existing list items will be pre-added to the tags -->
-         <?php
-
-            $query2 = "SELECT tags FROM tag WHERE fileid=$result3";
-                    $result2 = $db->query($query2);
-                    if (!empty($result2))
-                    {
-						foreach($result2 as $rr)
+					<?php
+						$query2 = "SELECT tags FROM tag WHERE fileid=$result3";
+						$result2 = $db->query($query2);
+						if (!empty($result2))
 						{
-							echo '<li>'. array_to_string($rr).'</li>';
-                            
-						}	
-					}
-                   ?>
-            </ul>
+							foreach($result2 as $rr)
+							{
+								echo '<li>'. array_to_string($rr).'</li>';
+							}	
+						}
+					?>
+				</ul>
                    
-                   <?php
-                   
-                   echo '<form action="" method="post">
-                       <input type="text" name="tag" />
-                       <input type="submit" value="Tag!" />
-                    </form>'
-                    ;
-  
-				
-					
-			
-					if(!empty($_POST['tag'])){
-						$svaret = $_POST['tag'];
-                        $stringarray = explode(" ", $svaret);
-                        foreach ($stringarray as $str)
-                        {
-                            $query = "INSERT INTO tag(fileid, tags) VALUES ($result3 , '$str')";
-                            $result = $db->query($query);
-                            echo'<meta http-equiv="refresh" content="0" />';
-                        }
-					}
-                    
-                    $query2 = "SELECT tags FROM tag WHERE fileid=$result3";
-                    $result2 = $db->query($query2);
-                    if (!empty($result2))
-                    {
-						foreach($result2 as $rr)
-						{
-							echo '<form action="" method="post">
-                                <input type="submit" name="' .
-                                array_to_string($rr) . '" value="' .
-                                array_to_string($rr) . '" />
-                                </form>';
-                            
-                            if (isset($_POST[array_to_string($rr)]))
-                            {
-                                $tag = array_to_string($rr);
-                                $query = "DELETE FROM tag WHERE tags = '$tag' AND fileid=$result3;";
-                                $result = $db->query($query);
-                            }
-						}	
-					}
-			
-					?>  
                         
                     <p>
                    
@@ -639,24 +774,18 @@
            
            </div>
 
-			<FORM action="CloseFullscreen">
-			   <input type="image" src="closex.png" onClick="window.close('fs')" align="right" width="40" height="40">
-			</FORM>
 			
-			   <input type="image" src="RotateRightButton.png" onClick="rotate(90)" align="right" width="40" height="40">
-	
-			   <input type="image" src="RotateLeftButton.png" onClick="rotate(-90)" align="right" width="40" height="40">
 
           
            
            <div id="fullscreenpic">
+               <div id="picturecontainer">
           <?php
                     if(($_GET['tag'] === "null")) {
                         $files = get_img_list($big);
                     }else {
                         $files = get_img_by_tag($_GET['tag']);
-                    }
-                    
+                    }                
                     
                     $number = count($files);
                     $key = array_search(basename($_GET['bilde']), $files);
@@ -671,9 +800,8 @@
                         $showFile = $files[$key + 1];
                     }
                     else { 
-						$showFile = substr($_GET['bilde'], 7);
-						// echo '<img id = "fullimg" src='.$big.$showFile.' height=85% onClick="getComment()"><br/>'; 
-						echo '<img id = "fullimg" src='.$big.$showFile.'?rand='.rand().' height=85% onClick="getComment()"><br/>'; 
+						$showFile = substr($_GET['bilde'], 7); 
+						echo '<img id = "fullimg" src='.$big.$showFile.'?rand='.rand().' height=85%><br/>'; 
 					}
                     // if ((isset($_GET['previous'])) or (isset($_GET['next']))) {
                         // echo '<img id = "fullimg" src='.$_GET['bilde'].' height=85% ><br/>'; 
@@ -684,9 +812,13 @@
                     // <img src= "Rbutton.png"width="40" height="40"></a>';
                
                 ?>
-					<input type="image" src= "Lbutton.png" onClick="prevImg()" width="40" height="40">
-					<input type="image" src= "Rbutton.png" onClick="nextImg()" width="40" height="40">
-    
+                   <div id="venstreknapp">
+			<img src="img/Tom.png" width="256" height="85%" onmouseover="musOverPilVenstre(this)" onmouseout="musIkkeOver(this)" onclick="prevImg()">
+		</div>
+                   <div id="hoyreknapp">
+			<img src="img/Tom.png" width="256" height="85%" onmouseover="musOverPilHoyre(this)" onmouseout="musIkkeOver(this)" onclick="nextImg()">
+		</div>
+    </div>
                
                <script type="text/javascript">
                     window.onload=function() {
@@ -701,7 +833,19 @@
                         window.close('fs'); 
                     }
                </script>
-</div>
-        <div id='test'></div>
+		</div>
+		
+
+		
+		<div id="roterVenstre">
+			<img src="img/TomKnapp.png" width="64" height="64" onmouseover="musOverRotasjonVenstre(this)" onmouseout="musIkkeOverRotasjonsknapp(this)" onclick="rotate(-90)">
+		</div>
+		<div id="roterhoyre">
+			<img src="img/TomKnapp.png" width="64" height="64" onmouseover="musOverRotasjonHoyre(this)" onmouseout="musIkkeOverRotasjonsknapp(this)" onclick="rotate(90)">
+		</div>
+		<div id="lukkVindu">
+			<img src="img/TomKnapp.png" width="64" height="64" onmouseover="musOverAvslutt(this)" onmouseout="musIkkeOverRotasjonsknapp(this)" onclick="window.close('fs')">
+		</div>
+			
     </body>
     </html>

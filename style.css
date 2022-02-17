@@ -40,7 +40,7 @@ h1 {
 
 #upload {
     width:100%;
-    height:85px;
+    height:80px;
 }
 
 #gallery {
@@ -53,6 +53,17 @@ h1 {
     border-color:#141818;
     overflow:auto;
     height:87vh;
+}
+
+#parameters{
+	height:50px;
+    margin-left:260px;
+	margin-top:8px;
+    border-radius:25px;
+    background-color:#415050;
+    border-style:solid;
+    border-width:2px;
+    border-color:#141818; 
 }
 
 #exif {
@@ -75,6 +86,59 @@ h1 {
     border-width:2px;
     border-color:#141818;
    
+}
+
+#commentForm
+{
+	text-align: left;
+	margin-left: 6px;
+}
+
+#venstreknapp
+{
+    position:absolute;
+    top:10px;
+    float:left;
+    margin-left:100px;
+	width: 300px;
+    height:90vh;
+}
+
+#hoyreknapp
+{
+	position:absolute;
+	top: 10px;
+	height:90vh;
+    right:110px;
+	width: 300px;
+}
+
+#roterVenstre
+{
+	position:absolute;
+	top: 143px;
+	right: 15px;
+}
+
+#roterhoyre
+{
+	position:absolute;
+	top: 79px;
+	right: 15px;
+}
+
+#rotasjonsmeny
+{
+	position:absolute;
+	top: 8px;
+	right: 8px;
+}
+
+#lukkVindu
+{
+	position:absolute;
+	top: 15px;
+	right: 15px;
 }
 
 #buttoncontainer {
@@ -151,7 +215,7 @@ ul.nav li a:hover {
 
 #navbox {
     overflow:auto;
-    height:300px;
+    height:70vh;
 }
 
 #details {
@@ -176,4 +240,8 @@ ul.nav li a:hover {
 
 .replace {
 display:none;
+}
+
+#picturecontainer {
+    height:90vh;
 }
