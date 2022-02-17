@@ -41,6 +41,53 @@
 			
 			
         <div id="search">
+  <<<<<<< oppdatering-søk
+            
+			<?php
+			
+                $rating1=NULL;
+                $rating2=NULL;
+                $rating3=NULL;
+                $rating4=NULL;
+                $rating5=NULL;
+                if (strcmp($currentRating,"1") == 0) $rating1="checked";
+                if (strcmp($currentRating,"2") == 0) $rating2="checked";
+                if (strcmp($currentRating,"3") == 0) $rating3="checked";
+                if (strcmp($currentRating,"4") == 0) $rating4="checked";
+                if (strcmp($currentRating,"5") == 0) $rating5="checked";
+				
+			?>
+				<form id="ratingForm" method="post">	
+					<span class="rating" id = "ratingstar"> 
+						<input type="radio" value="5" class="rating-input"
+							id="rating-input-1-5" name="ratinginput" '.$rating5.' onChange="rateFunction(5)">
+						<label for="rating-input-1-5" class="rating-star"></label>
+						
+						<input type="radio" value="4" class="rating-input"
+							id="rating-input-1-4" name="ratinginput" '.$rating4.' onChange="rateFunction(4)">
+						<label for="rating-input-1-4" class="rating-star"></label>
+						
+						<input type="radio" value="3" class="rating-input"
+							id="rating-input-1-3" name="ratinginput" '.$rating3.' onChange="rateFunction(3)">
+						<label for="rating-input-1-3" class="rating-star"></label>
+						
+						<input type="radio" value="2" class="rating-input"
+							id="rating-input-1-2" name="ratinginput" '.$rating2.' onChange="rateFunction(2)">
+						<label for="rating-input-1-2" class="rating-star"></label>
+						
+						<input type="radio" value="1" class="rating-input"
+							id="rating-input-1-1" name="ratinginput" '.$rating1.' onChange="rateFunction(1)">
+						<label for="rating-input-1-1" class="rating-star"></label>
+				</span>
+				<br><br>
+
+			
+            <form action="" method="post">
+                <input type="text" name="search" size="20"/>
+                <!input type="Radio" name="searchw" value="tag"/>
+				<!input type="Radio" name="searchw" value="commentary"/>
+				<!input type="Radio" name="searchw" value="rating"/>
+  =======
 			
 			<?php
 			
@@ -91,6 +138,7 @@
 			
 			<form action="" method="post">
                 <input type="text" name="search" size="20"/>
+  >>>>>>> nextprevfix
 				<input type="submit" name="submission" value="Search" /><br>
             </form>
 		

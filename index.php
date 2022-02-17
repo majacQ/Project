@@ -55,10 +55,23 @@
 	$ratingcategory = "";
 	$submission = "";
 	
+  <<<<<<< oppdatering-søk
+		//if (!empty($_POST['search']) && !empty($_POST['searchw'])){
+		if (!empty($_POST['search'])){
+			$files = giveSearch($_POST['search']);
+			$gallery = VisBilder($files);
+		}
+		
+		if (!empty($_POST['ratinginput'])){
+			$files = giveRating($_POST['ratinginput']);
+			$gallery = VisBilder($files);
+		}
+  =======
 	if(!empty($_GET['ratinginput'])){$ratinginput = $_GET['ratinginput'];}
 	if(!empty($_GET['search'])){$search = $_GET['search'];}
 	if(!empty($_GET['ratingcategory'])){$ratingcategory = $_GET['ratingcategory'];}
 	if(!empty($_GET['submission'])){$submission = $_GET['submission'];}
+  >>>>>>> nextprevfix
 	
 	if(!empty($submission)){
 		$files = get_search_list($ratinginput, $search, $ratingcategory);

@@ -343,25 +343,43 @@ if(!empty($filelist)){
         imagejpeg($nm, $path_to_thumbs_directory . $filename);
 	}
 
+  <<<<<<< oppdatering-søk
+	// test search function
+	
+		//function giveSearch($search1, $searchw1){
+		function giveSearch($search1){
+  =======
 	// Search function
 		
 		function giveSearch($search1, $rcat){
+  >>>>>>> nextprevfix
 		
 //			if(isset($_POST['submission'])){
 
 				$search = $search1;
+  <<<<<<< oppdatering-søk
+				//$searchw = $searchw1;
+  =======
 				
 				if (strpos($search,"'") !== false) {
 					alert_message("Invalid character!");
 					return;
 				}
+  >>>>>>> nextprevfix
 				
 				$where = 'file_liste';
 				$what = 'filename';
 				$files = null;
 				
+  <<<<<<< oppdatering-søk
+				//$sQuery0 = "WHERE $searchw = $search";
+				
 				$sQuery1 = "WHERE commentary LIKE '%$search%'";
 				
+  =======
+				$sQuery1 = "WHERE commentary LIKE '%$search%'";
+				
+  >>>>>>> nextprevfix
 				$sQuery2 = "INNER JOIN tag ON file_liste.fileid = tag.fileid WHERE tag.tags LIKE '$search%'";
 				
 				$files1 = db_select($where, $what, $sQuery1, $what);
@@ -481,6 +499,8 @@ if(!empty($filelist)){
 		if (!empty($ratinginput) && !empty($search)){
 			$files = giveBoth($search,$ratinginput,$ratingcategory);
 		}
+  <<<<<<< oppdatering-søk
+  =======
 	
 		if (!empty($search) && empty($ratinginput)){
 			$files = giveSearch($search,$ratingcategory);
@@ -574,5 +594,31 @@ if(!empty($filelist)){
 //		}
 		
 
+  >>>>>>> nextprevfix
 		
+		function giveRating($value1){
+			if(isset($_POST['submission'])){
+				
+				$value = $value1;
+				$where = 'file_liste';
+				$what = 'filename';
+				$files = null;
+				
+				$sQuery0 = "WHERE rating = $value";
+				
+				$files = db_select($where, $what, $sQuery0, $what);
+				
+				if(!empty($files)){
+					$files = array_unique($files);
+					}
+				
+				if(!$files){
+					alert_message("Search yields no results");
+					return FALSE;
+				}
+				
+				return $files;
+				
+			}
+		}
 ?>
